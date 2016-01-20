@@ -23,7 +23,7 @@
   ],
   "dependencies": {
     "angular": "~1.4.7",
-    "angular-adobe": "https://github.com/WIPAPP/angular-adobe.git#96f0840bfb8288f794a54c226f117e5fc3fda7ab"
+    "angular-adobe": "https://github.com/WIPAPP/angular-adobe.git#wipster"
   },
   "devDependencies": {
     "angular-mocks": "~1.4.7"
