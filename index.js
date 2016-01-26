@@ -115,6 +115,7 @@ angular.module('codemill.premiere', ['codemill.adobe'])
       };
 
       this.createSequenceMarkers = function (markers) {
+        $log.debug('markers: ', markers)
         return runWithActiveSequenceCheck(createSequenceMarkers(markers));
       };
 
