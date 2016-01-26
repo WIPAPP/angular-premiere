@@ -175,6 +175,7 @@ function createSequenceMarkers(inMarkers) {
       var newMarker = sequenceMarkers.createMarker(marker.start);
       newMarker.name = marker.name;
       newMarker.comments = marker.comments.replace(/<br>/g, '\n');
+      $.writeLn('Marker end: ', marker.end)
       newMarker.end = marker.end;
     }
   }
