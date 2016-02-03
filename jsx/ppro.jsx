@@ -176,6 +176,8 @@ function createSequenceMarkers(inMarkers) {
       var newMarker = sequenceMarkers.createMarker(marker.start);
       newMarker.name = marker.name;
       newMarker.comments = marker.comments.replace(/<br\s*[\/]?>/gi, '\n');
+      newMarker.comments = newMarker.comments.replace(/&#39;/g,"'") 
+      newMarker.comments = newMarker.comments.replace(/&#47;/g,"/")
       newMarker.end = marker.end;
     }
   }
