@@ -1,5 +1,4 @@
 function renderSequence(presetPath, outputPath) {
-    $.writeln('enter renderSequence');
   app.enableQE();
   var jobID = undefined;
 
