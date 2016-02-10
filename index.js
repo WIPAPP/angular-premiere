@@ -61,8 +61,8 @@ angular.module('codemill.premiere', ['codemill.adobe'])
           var deferred = $q.defer();
           adobeService.callCS(getActiveSequence())
             .then(function (sequence) {
-              if (sequence === null || sequence === undefined || sequence.id === null || sequence.id === undefined) {
-                deferred.reject('No active sequence');
+              if (typeof sequence === 'undefined' || sequence === null || sequence.id === null || sequence.id === undefined) {
+                deferred.reject({error :'No active sequence', data : sequence});
               } else {
                 adobeService.callCS(callOpts)
                   .then(function (data) {
@@ -81,7 +81,6 @@ angular.module('codemill.premiere', ['codemill.adobe'])
           return $q.when();
         }
       }
-
       this.renderActiveSequence = function (config) {
         var deferred = $q.defer();
         var outputPath = adobeService.getFilePath(config.output);
