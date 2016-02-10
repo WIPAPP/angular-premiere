@@ -1,190 +1,144 @@
-function renderSequence(presetPath, outputPath) {
-  app.enableQE();
-  var jobID = undefined;
+'use strict';
 
-  var activeSequence = qe.project.getActiveSequence();
-  if (activeSequence != undefined) {
-    app.encoder.launchEncoder();
+angular.module('codemill.premiere', ['codemill.adobe'])
+  .service('cmPremiereService', ['$q', '$log', '$timeout', 'cmAdobeService',
+    function ($q, $log, $timeout, adobeService) {
 
-    function onEncoderJobComplete(jobID, outputFilePath) {
-      loadPluginLib();
-      var eventObj = new CSXSEvent();
+      var jobs = {};
 
-      eventObj.type = "se.codemill.ppro.RenderEvent";
-      eventObj.data = JSON.stringify({
-        'type': 'complete',
-        'jobID': jobID,
-        'outputFilePath': outputFilePath
-      });
-      eventObj.dispatch();
-    }
-
-    function onEncoderJobError(jobID, errorMessage) {
-      loadPluginLib();
-      var eventObj = new CSXSEvent();
-
-      eventObj.type = "se.codemill.ppro.RenderEvent";
-      eventObj.data = JSON.stringify({
-        'type': 'error',
-        'jobID': jobID,
-        'errorMessage': errorMessage
-      });
-      eventObj.dispatch();
-    }
-
-    function onEncoderJobProgress(jobID, progress) {
-      loadPluginLib();
-      var eventObj = new CSXSEvent();
-
-      eventObj.type = "se.codemill.ppro.RenderEvent";
-      eventObj.data = JSON.stringify({
-        'type': 'progress',
-        'jobID': jobID,
-        'progress': progress
-      });
-      eventObj.dispatch();
-    }
-
-    function onEncoderJobQueued(jobID) {
-      app.encoder.startBatch();
-    }
-
-    var projPath = new File(app.project.path);
-    if (outputPath == undefined) {
-      outputPath = Folder.selectDialog("Choose the output directory").fsName;
-    }
-
-    if (outputPath != null && projPath.exists) {
-      var outputPresetPath = getPresetPath(presetPath);
-      var outPreset = new File(outputPresetPath);
-      if (outPreset.exists == true) {
-
-        var outputFormatExtension = activeSequence.getExportFileExtension(outPreset.fsName);
-
-        if (outputFormatExtension != null) {
-          var fullPathToFile = calculateOutputFilename(outputPath, activeSequence, outputFormatExtension);
-
-          app.encoder.bind('onEncoderJobComplete', onEncoderJobComplete);
-          app.encoder.bind('onEncoderJobError', onEncoderJobError);
-          app.encoder.bind('onEncoderJobProgress', onEncoderJobProgress);
-          app.encoder.bind('onEncoderJobQueued', onEncoderJobQueued);
-
-          // use these 0 or 1 settings to disable some/all metadata creation.
-
-          app.encoder.setSidecarXMPEnabled(0);
-          app.encoder.setEmbeddedXMPEnabled(0);
-
-          jobID = app.encoder.encodeSequence(app.project.activeSequence,
-            fullPathToFile,
-            outPreset.fsName,
-            app.encoder.ENCODE_ENTIRE);
-          outPreset.close();
-        }
-      } else {
-        alert("Could not find output preset.");
+      function registerJob(jobID, deferred) {
+        jobs[jobID] = deferred;
       }
-    } else {
-      alert("Could not find/create output path.");
-    }
-    projPath.close();
-  }
 
-  return jobID;
-}
+      function unregisterJob(jobID) {
+        delete jobs[jobID];
+      }
 
-function getActiveSequence() {
-  var data = {
-    id : null,
-    name : null
-  };
-  app.enableQE();
-  var activeSequence = qe.project.getActiveSequence();
-  if (activeSequence) {
-    data = {
-      'id': activeSequence.guid,
-      'name': activeSequence.name
-    };
-  }
-  return JSON.stringify(data);
-}
+      function renderSequence(presetPath, outputPath) {
+        return { method : 'renderSequence', args : [presetPath, outputPath]};
+      }
 
-function calculateOutputFilename(outputPath, activeSequence, extension) {
-  return outputPath + getPathSeparatorByOS() + activeSequence.name + "." + extension;
-}
+      function getActiveSequence() {
+        return { method : 'getActiveSequence', returnsObject : true };
+      }
 
-function getPathSeparatorByOS() {
-  app.enableQE();
-  if (qe === undefined || qe === null || qe.project === undefined || qe.project === null) {
-    return;
-  }
+      function clearSequenceMarkers() {
+        return { method : 'clearSequenceMarkers' };
+      }
 
-  if (qe.platform !== undefined && qe.platform === 'Macintosh') {
-    return '/';
-  } else {
-    return '\\';
-  }
-}
+      function createSequenceMarkers(markers) {
+        return { method : 'createSequenceMarkers', args : [markers] };
+      }
 
-function loadPluginLib() {
-  var eoName;
-  if (Folder.fs == 'Macintosh') {
-    eoName = "PlugPlugExternalObject";
-  } else {
-    eoName = "PlugPlugExternalObject.dll";
-  }
+      function handleRenderEvent(event) {
+        var jobID = event.data.jobID;
+        if (jobID in jobs) {
+          var deferred = jobs[jobID];
+          switch (event.data.type) {
+            case 'error':
+              $log.error('Failed rendering sequence', event.data.error);
+              deferred.reject('Failed rendering sequence');
+              unregisterJob(jobID);
+              break;
+            case 'progress':
+              deferred.notify(event.data.progress * 100);
+              break;
+            case 'complete':
+              $log.info('File from host: ', event.data.outputFilePath);
+              deferred.resolve(event.data.outputFilePath);
+              unregisterJob(jobID);
+              break;
+          }
+        }
+      }
 
-  try {
-    new ExternalObject('lib:' + eoName);
-  } catch (error) {
-    alert(error);
-  }
-}
+      if (adobeService.isHostAvailable()) {
+        adobeService.registerEventListener('se.codemill.ppro.RenderEvent', handleRenderEvent);
+      }
 
-function getPresetPath(presetPath) {
-  if (presetPath != null) {
-    return presetPath;
-  }
-  if (Folder.fs == 'Macintosh') {
-    return "/Applications/Adobe\ Premiere\ Pro\ CC\ 2015/Adobe\ Premiere\ Pro\ CC\ 2015.app/Contents/MediaIO/systempresets/58444341_4d584658/XDCAMHD\ 50\ NTSC\ 60i.epr";
-  } else {
-    return "C:\\Program Files\\Adobe\\Adobe Media Encoder CC 2015\\MediaIO\\systempresets\\58444341_4d584658\\XDCAMHD 50 NTSC 60i.epr";
-  }
-}
+      function runWithActiveSequenceCheck(callOpts) {
+        if (adobeService.isHostAvailable()) {
+          var deferred = $q.defer();
+          adobeService.callCS(getActiveSequence())
+            .then(function (sequence) {
+              if (typeof sequence === 'undefined' || sequence === null || sequence.id === null || sequence.id === undefined) {
+                deferred.reject({error :'No active sequence', data : sequence});
+              } else {
+                adobeService.callCS(callOpts)
+                  .then(function (data) {
+                    deferred.resolve(data);
+                  })
+                  .catch(function (error) {
+                    deferred.reject(error);
+                  });
+              }
+            })
+            .catch(function (error) {
+              deferred.reject(error);
+            });
+          return deferred.promise;
+        } else {
+          return $q.when();
+        }
+      }
 
-function clearSequenceMarkers() {
-  if (app.project.activeSequence != undefined) {
-    var ms = [];
-    var markers = app.project.activeSequence.markers;
-    for(var current_marker = 	markers.getFirstMarker();
-        current_marker !=	undefined;
-        current_marker =	markers.getNextMarker(current_marker)){
-      ms.push(current_marker);
-    }
-    for (var i = 0; i < ms.length; i++) {
-      markers.deleteMarker(ms[i]);
-    }
-  }
-}
+      this.renderActiveSequence = function (config) {
+        var deferred = $q.defer();
+        var outputPath = adobeService.getFilePath(config.output);
+        var presetPath = adobeService.getFilePath(config.preset);
+        if (!adobeService.isHostAvailable()) {
+          var iteration = 0;
+          var iterationFunc = function () {
+            if (iteration >= 10) {
+              deferred.resolve(outputPath + 'test.mp4');
+            } else {
+              deferred.notify(iteration * 10);
+              iteration += 1;
+              $timeout(iterationFunc, 250);
+            }
+          };
+          $timeout(iterationFunc, 250);
+        } else {
+          runWithActiveSequenceCheck(renderSequence(presetPath, outputPath))
+            .then(function(jobID) {
+              registerJob(jobID, deferred);
+            })
+            .catch(function(error) {
+              deferred.reject(error);
+            });
+        }
+        return deferred.promise;
+      };
 
-function createSequenceMarkers(inMarkers) {
-  var markers = JSON.parse(inMarkers);
-  if (app.project.activeSequence != undefined && markers != undefined) {
-    var sequenceMarkers = app.project.activeSequence.markers;
-    for (var i = 0; i < markers.length; i++) {
-      var marker = markers[i];
-      var newMarker = sequenceMarkers.createMarker(marker.start);
-      newMarker.name = marker.name;
-      newMarker.comments = marker.comments.replace(/<br\s*[\/]?>/gi, '\n');
-      newMarker.comments = newMarker.comments.replace(/&#39;/g,"'") 
-      newMarker.comments = newMarker.comments.replace(/&#47;/g,"/")
-      newMarker.comments = newMarker.comments.replace(/&#92;/g,"\\");
-      newMarker.comments = newMarker.comments.replace(/&#34;/g, "\""); 
-      newMarker.end = marker.end;
-    }
-  }
-}
+      this.clearSequenceMarkers = function () {
+        return runWithActiveSequenceCheck(clearSequenceMarkers());
+      };
 
-function getPathAsFile(path) {
-  var file = new File(path);
-  return file;
-}
+      this.createSequenceMarkers = function (markers) {
+        $log.debug('markers: ', markers)
+        return runWithActiveSequenceCheck(createSequenceMarkers(markers));
+      };
+
+      var guid = function () {
+        function s4() {
+          return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+        }
+
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+          s4() + '-' + s4() + s4() + s4();
+      };
+
+      this.getActiveSequence = function () {
+        if (adobeService.isHostAvailable()) {
+          return adobeService.callCS(getActiveSequence());
+        } else {
+          return $q.when({
+            'id': guid(),
+            'name': 'Sequence name'
+          });
+        }
+      };
+
+    }]);
