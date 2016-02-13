@@ -62,7 +62,7 @@ angular.module('codemill.premiere', ['codemill.adobe'])
           adobeService.callCS(getActiveSequence())
             .then(function (sequence) {
               if (typeof sequence === 'undefined' || sequence === null || sequence.id === "" || sequence.name === "name") {
-                deferred.reject({error :'No active sequence', data : sequence});
+                deferred.reject('No active sequence');
               } else {
                 adobeService.callCS(callOpts)
                   .then(function (data) {
