@@ -61,14 +61,8 @@ angular.module('codemill.premiere', ['codemill.adobe'])
           var deferred = $q.defer();
           adobeService.callCS(getActiveSequence())
             .then(function (sequence) {
-                try {
-                    sequence = JSON.parse(sequence);
-                } catch(error) {
-                    deferred.reject(error);
-                }
-
               if (typeof sequence === 'undefined' || sequence === null || sequence.id === "" || sequence.name === "name") {
-                deferred.reject('No active sequence');
+                deferred.reject(new Error('No active sequence : 11'));
               } else {
                 adobeService.callCS(callOpts)
                   .then(function (data) {
