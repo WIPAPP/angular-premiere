@@ -105,6 +105,10 @@ function getActiveSequence() {
       'name': activeSequence.name
     };
   }
+  if (typeof JSON !== 'object')
+  {
+      return '{"id":"' + activeSequence.guid + '","name": "' + activeSequence.name + '"}'
+  }
   return JSON.stringify(data);
 }
 
