@@ -11,11 +11,16 @@ function renderSequence(presetPath, outputPath) {
       var eventObj = new CSXSEvent();
 
       eventObj.type = "se.codemill.ppro.RenderEvent";
-      eventObj.data = JSON.stringify({
-        'type': 'complete',
-        'jobID': jobID,
-        'outputFilePath': outputFilePath
-      });
+      if (typeof JSON !== 'object') {
+          eventObj.data = "{\"type\": \"complete\",\"jobID\": jobID,\"outputFilePath\": outputFilePath}";
+      } else {
+          eventObj.data = JSON.stringify({
+              'type': 'complete',
+              'jobID': jobID,
+              'outputFilePath': outputFilePath
+          });
+      }
+
       eventObj.dispatch();
     }
 
@@ -24,11 +29,16 @@ function renderSequence(presetPath, outputPath) {
       var eventObj = new CSXSEvent();
 
       eventObj.type = "se.codemill.ppro.RenderEvent";
-      eventObj.data = JSON.stringify({
-        'type': 'error',
-        'jobID': jobID,
-        'errorMessage': errorMessage
-      });
+      if (typeof JSON !== 'object') {
+          eventObj.data = "{\"type\": \"error\",\"jobID\": jobID,\"errorMessage\": errorMessage}";
+      } else {
+          eventObj.data = JSON.stringify({
+              'type': 'error',
+              'jobID': jobID,
+              'errorMessage': errorMessage
+          });
+      }
+
       eventObj.dispatch();
     }
 
@@ -37,11 +47,16 @@ function renderSequence(presetPath, outputPath) {
       var eventObj = new CSXSEvent();
 
       eventObj.type = "se.codemill.ppro.RenderEvent";
-      eventObj.data = JSON.stringify({
-        'type': 'progress',
-        'jobID': jobID,
-        'progress': progress
-      });
+
+      if (typeof JSON !== 'object') {
+          eventObj.data = "{\"type\": \"progress\",\"jobID\": jobID,\"progress\": progress}";
+      } else {
+          eventObj.data = JSON.stringify({
+              'type': 'progress',
+              'jobID': jobID,
+              'progress': progress
+          });
+      }
       eventObj.dispatch();
     }
 
