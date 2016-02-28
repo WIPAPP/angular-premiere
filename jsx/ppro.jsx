@@ -171,21 +171,32 @@ function clearSequenceMarkers() {
 }
 
 function createSequenceMarkers(inMarkers) {
-  var markers = JSON.parse(inMarkers);
-  if (app.project.activeSequence != undefined && markers != undefined) {
-    var sequenceMarkers = app.project.activeSequence.markers;
-    for (var i = 0; i < markers.length; i++) {
-      var marker = markers[i];
-      var newMarker = sequenceMarkers.createMarker(marker.start);
-      newMarker.name = marker.name;
-      newMarker.comments = marker.comments.replace(/<br\s*[\/]?>/gi, '\n');
-      newMarker.comments = newMarker.comments.replace(/&#39;/g,"'") 
-      newMarker.comments = newMarker.comments.replace(/&#47;/g,"/")
-      newMarker.comments = newMarker.comments.replace(/&#92;/g,"\\");
-      newMarker.comments = newMarker.comments.replace(/&#34;/g, "\""); 
-      newMarker.end = marker.end;
+
+  if (typeof app.project.activeSequence != "undefined" && typeof inMarkers != "undefined") {
+      var json;
+      if (typeof JSON !== 'object')
+      {
+          json = Function("return " + inMarkers + "")();
+      } else {
+          json = JSON.parse(inMarkers);
+      }
+
+      for (var i = 0; i < json.length; i++) {
+          createSequenceMarker(json[i])
     }
   }
+}
+
+function createSequenceMarker(marker) {
+    var sequenceMarkers = app.project.activeSequence.markers;
+    var newMarker = sequenceMarkers.createMarker(marker.start);
+    newMarker.name = marker.name;
+    newMarker.comments = marker.comments.replace(/<br\s*[\/]?>/gi, '\n');
+    newMarker.comments = newMarker.comments.replace(/&#39;/g, "'")
+    newMarker.comments = newMarker.comments.replace(/&#47;/g, "/")
+    newMarker.comments = newMarker.comments.replace(/&#92;/g, "\\");
+    newMarker.comments = newMarker.comments.replace(/&#34;/g, "\"");
+    newMarker.end = marker.end;
 }
 
 function getPathAsFile(path) {
