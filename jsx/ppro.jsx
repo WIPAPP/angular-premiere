@@ -1,4 +1,4 @@
-function renderSequence(presetPath, outputPath) {
+function renderSequence(presetPath, outputPath, useInOutPoints) {
   app.enableQE();
   var jobID = undefined;
 
@@ -64,7 +64,19 @@ function renderSequence(presetPath, outputPath) {
       app.encoder.startBatch();
     }
 
+    function getEncodeSectionDescription(useInOutPoints) {
+        if (useInOutPoints && useInOutPoints === "true")
+        {
+            return app.encoder.ENCODE_IN_TO_OUT
+        }
+        return app.encoder.ENCODE_ENTIRE;
+    }
+
     var projPath = new File(app.project.path);
+
+    var seqInPoint = app.project.activeSequence.getInPoint();	
+    var seqOutPoint = app.project.activeSequence.getOutPoint();	
+
     if (outputPath == undefined) {
       outputPath = Folder.selectDialog("Choose the output directory").fsName;
     }
@@ -92,7 +104,7 @@ function renderSequence(presetPath, outputPath) {
           jobID = app.encoder.encodeSequence(app.project.activeSequence,
             fullPathToFile,
             outPreset.fsName,
-            app.encoder.ENCODE_ENTIRE);
+            getEncodeSectionDescription(useInOutPoints));
           outPreset.close();
            }
       } else {

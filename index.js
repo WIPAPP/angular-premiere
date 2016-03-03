@@ -14,8 +14,8 @@ angular.module('codemill.premiere', ['codemill.adobe'])
         delete jobs[jobID];
       }
 
-      function renderSequence(presetPath, outputPath) {
-        return { method : 'renderSequence', args : [presetPath, outputPath]};
+      function renderSequence(presetPath, outputPath, useInOutPoints) {
+          return { method: 'renderSequence', args: [presetPath, outputPath, useInOutPoints] };
       }
 
       function getActiveSequence() {
@@ -81,7 +81,7 @@ angular.module('codemill.premiere', ['codemill.adobe'])
           return $q.when();
         }
       }
-      this.renderActiveSequence = function (config) {
+      this.renderActiveSequence = function (config, useInOutPoints) {
         var deferred = $q.defer();
         var outputPath = adobeService.getFilePath(config.output);
         var presetPath = adobeService.getFilePath(config.preset);
@@ -98,7 +98,7 @@ angular.module('codemill.premiere', ['codemill.adobe'])
           };
           $timeout(iterationFunc, 250);
         } else {
-          runWithActiveSequenceCheck(renderSequence(presetPath, outputPath))
+            runWithActiveSequenceCheck(renderSequence(presetPath, outputPath, useInOutPoints))
             .then(function(jobID) {
               registerJob(jobID, deferred);
             })
