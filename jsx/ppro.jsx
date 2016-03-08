@@ -224,9 +224,35 @@ function createSequenceMarker(marker) {
     newMarker.comments = newMarker.comments.replace(/&#92;/g, "\\");
     newMarker.comments = newMarker.comments.replace(/&#34;/g, "\"");
     newMarker.end = marker.end;
+    //newMarker.type = getMarkerColour(index);
 }
 
 function getPathAsFile(path) {
   var file = new File(path);
   return file;
 }
+
+function getMarkerColour(index) {
+    $.writeln("index: ", index);
+    if (index === 1)
+    {
+        return "Segmentation";
+    }
+    if (index === 2) {
+        return "Chapter";
+    }
+    if (index === 3) {
+        return "WebLink";
+    }
+    return "Comment";
+}
+
+//var colourCounter = 1;
+  //    for (var i = 0; i < json.length; i++) {
+   //       if (i % 4 == 0)
+   //       {
+    //          colourCounter = 1
+    //      }
+    //      createSequenceMarker(json[i], colourCounter)
+    //      colourCounter++;
+   // }
