@@ -224,6 +224,11 @@ function createSequenceMarker(marker) {
     newMarker.comments = newMarker.comments.replace(/&#92;/g, "\\");
     newMarker.comments = newMarker.comments.replace(/&#34;/g, "\"");
     newMarker.end = marker.end;
+
+    if(typeof marker.completed !== "undefined" && marker.completed === true)
+    {
+        newMarker.type = "Segmentation";
+    }
     //newMarker.type = getMarkerColour(index);
 }
 
