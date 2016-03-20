@@ -12,7 +12,8 @@ function renderSequence(presetPath, outputPath, useInOutPoints) {
 
       eventObj.type = "se.codemill.ppro.RenderEvent";
       if (typeof JSON !== 'object') {
-          eventObj.data = "{\"type\": \"complete\",\"jobID\": jobID,\"outputFilePath\": outputFilePath}";
+          var filePath = encodeURI(outputFilePath);
+          eventObj.data = '{"type": "complete","jobID": "' + jobID + '","outputFilePath": "' + filePath + '"}';
       } else {
           eventObj.data = JSON.stringify({
               'type': 'complete',
@@ -30,7 +31,7 @@ function renderSequence(presetPath, outputPath, useInOutPoints) {
 
       eventObj.type = "se.codemill.ppro.RenderEvent";
       if (typeof JSON !== 'object') {
-          eventObj.data = "{\"type\": \"error\",\"jobID\": jobID,\"errorMessage\": errorMessage}";
+          eventObj.data = '{"type": "error","jobID": "' + jobID + '","errorMessage": "' + errorMessage + '"}';
       } else {
           eventObj.data = JSON.stringify({
               'type': 'error',
@@ -49,7 +50,7 @@ function renderSequence(presetPath, outputPath, useInOutPoints) {
       eventObj.type = "se.codemill.ppro.RenderEvent";
 
       if (typeof JSON !== 'object') {
-          eventObj.data = "{\"type\": \"progress\",\"jobID\": jobID,\"progress\": progress}";
+          eventObj.data = '{"type": "progress","jobID": "' + jobID + '","progress": "' + progress +'"}';
       } else {
           eventObj.data = JSON.stringify({
               'type': 'progress',
