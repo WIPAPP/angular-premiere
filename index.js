@@ -34,6 +34,14 @@ angular.module('codemill.premiere', ['codemill.adobe'])
         return { method: 'getInMarkerPoint' };
       }
 
+      function setPlayerPosition(ticks) {
+          return { method: 'setPlayerPosition', args: [ticks] };
+      }
+
+      function setPlayerPositionToMarker(time) {
+          return { method: 'setPlayerPositionToMarker', args: [time] };
+      }
+
       function handleRenderEvent(event) {
           var jobID = event.data.jobID;
         if (jobID in jobs) {
@@ -180,5 +188,18 @@ angular.module('codemill.premiere', ['codemill.adobe'])
           });
         }
       };
+
+      this.setPlayerPositionToMarker = function (time) {
+        if (adobeService.isHostAvailable()) {
+            adobeService.callCS(setPlayerPositionToMarker(time))
+        }
+    };
+
+    this.setPlayerPosition = function(ticks) {
+
+        if (adobeService.isHostAvailable()) {
+            adobeService.callCS(setPlayerPosition(ticks));
+        }
+    };
 
     }]);

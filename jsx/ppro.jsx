@@ -4,6 +4,7 @@ function renderSequence(presetPath, outputPath, useInOutPoints) {
 
   var activeSequence = qe.project.getActiveSequence();
   if (activeSequence != undefined) {
+
     app.encoder.launchEncoder();
 
     function onEncoderJobComplete(jobID, outputFilePath) {
@@ -226,7 +227,6 @@ function createSequenceMarker(marker) {
     newMarker.comments = newMarker.comments.replace(/&#34;/g, "\"");
 
     newMarker.end = marker.end;
-
     if(typeof marker.completed !== "undefined" && marker.completed === true)
     {
         newMarker.type = "Segmentation";
@@ -240,7 +240,7 @@ function getPathAsFile(path) {
 }
 
 function getMarkerColour(index) {
-    $.writeln("index: ", index);
+
     if (index === 1)
     {
         return "Segmentation";
@@ -258,7 +258,27 @@ function getInMarkerPoint() {
     return app.project.activeSequence.getInPoint();
 }
 
+function setPlayerPosition(ticks) {
+    if (app.project.activeSequence != undefined) {
+        app.project.activeSequence.setPlayerPosition(ticks);
+    }
+}
 
+function setPlayerPositionToMarker(time) {
+
+    if (app.project.activeSequence != undefined) {
+       
+        var markers = app.project.activeSequence.markers;
+        for (var current_marker = markers.getFirstMarker() ;
+            current_marker != undefined;
+            current_marker = markers.getNextMarker(current_marker)) {
+            if (current_marker.end.seconds == time)
+            {
+                setPlayerPosition(current_marker.end.ticks)
+            }
+        }
+    }
+}
 //var colourCounter = 1;
   //    for (var i = 0; i < json.length; i++) {
    //       if (i % 4 == 0)
