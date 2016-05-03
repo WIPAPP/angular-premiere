@@ -221,11 +221,23 @@ function createSequenceMarker(marker) {
     var newMarker = sequenceMarkers.createMarker(marker.start);
     newMarker.name = marker.name;
     newMarker.comments = marker.comments.replace(/<br\s*[\/]?>/gi, '\n');
-    newMarker.comments = newMarker.comments.replace(/&#39;/g, "'")
-    newMarker.comments = newMarker.comments.replace(/&#47;/g, "/")
+
+    newMarker.comments = newMarker.comments.replace(/&#39;/g, "'");
+    newMarker.comments = newMarker.comments.replace(/&#;39;/g, "'");
+    newMarker.comments = newMarker.comments.replace(/&%23;39;/g, "'");
+
+    newMarker.comments = newMarker.comments.replace(/&#47;/g, "/");
+    newMarker.comments = newMarker.comments.replace(/&#;47;/g, "/");
     newMarker.comments = newMarker.comments.replace(/&%23;47;/g, "/");
+
     newMarker.comments = newMarker.comments.replace(/&#92;/g, "\\");
+    newMarker.comments = newMarker.comments.replace(/&#;92;/g, "\\");
+    newMarker.comments = newMarker.comments.replace(/&%23;92;/g, "\\");
+
     newMarker.comments = newMarker.comments.replace(/&#34;/g, "\"");
+    newMarker.comments = newMarker.comments.replace(/&#;34;/g, "\"");
+    newMarker.comments = newMarker.comments.replace(/&%23;34;/g, "\"");
+
     newMarker.comments = newMarker.comments.replace(/%20/g, " ");
     newMarker.comments = newMarker.comments.replace(/%0A/g, " ");
     newMarker.comments = decodeURIComponent(newMarker.comments);
