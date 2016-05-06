@@ -238,9 +238,12 @@ function createSequenceMarker(marker) {
     newMarker.comments = newMarker.comments.replace(/&#;34;/g, "\"");
     newMarker.comments = newMarker.comments.replace(/&%23;34;/g, "\"");
 
+    newMarker.comments = newMarker.comments.replace(/&#37;/g, "%");
+    newMarker.comments = newMarker.comments.replace(/&#;37;/g, "%");
+    newMarker.comments = newMarker.comments.replace(/&%23;37;/g, "%");
+
     newMarker.comments = newMarker.comments.replace(/%20/g, " ");
     newMarker.comments = newMarker.comments.replace(/%0A/g, " ");
-    newMarker.comments = decodeURIComponent(newMarker.comments);
     newMarker.end = marker.end;
     
     if(typeof marker.completed !== "undefined" && marker.completed === true)
