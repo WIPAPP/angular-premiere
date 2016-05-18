@@ -130,7 +130,6 @@ angular.module('codemill.premiere', ['codemill.adobe'])
           adobeService.callCS(getInMarkerPoint()).then(function(point) {
               try {
                   if (typeof point !== "undefined" && point !== null && point > 0) {
-                      $log.debug("PP isInMarkerActive true");
                       return true
                   }
               } catch (e) {
@@ -140,7 +139,6 @@ angular.module('codemill.premiere', ['codemill.adobe'])
           }).catch(function(error) {
               $log.Error(error);
           });
-          $log.debug("PP isInMarkerActive false");
           return false;
       }
 
