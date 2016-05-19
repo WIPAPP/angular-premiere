@@ -1,3 +1,30 @@
+//AE
+function setCurrentTimeIndicator(time) {
+    app.project.activeItem.time = time
+}
+
+function getActiveItem() {
+    var data = {
+        id: null,
+        name: null
+    };
+    var activeItem = app.project.activeItem;
+
+    if (activeItem) {
+        data = {
+            'id': activeItem.id,
+            'name': activeItem.name
+        };
+    };
+
+    if (typeof JSON !== 'object') {
+        return '{"id":"' + activeItem.id + '","name": "' + activeItem.name + '"}'
+    };
+
+    return JSON.stringify(data);
+}
+
+//PPRO
 function renderSequence(presetPath, outputPath, useInOutPoints) {
   app.enableQE();
   var jobID = undefined;
