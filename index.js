@@ -160,7 +160,7 @@ angular.module('codemill.premiere', ['codemill.adobe'])
         };
 
       this.createSequenceMarkers = function (markers) {
-          $log.debug('markers: ', markers)
+          $log.debug('markers: ', markers);
           resetMarkersEndIfInPointActive(markers);
         return runWithActiveSequenceCheck(createSequenceMarkers(markers));
       };
@@ -188,7 +188,7 @@ angular.module('codemill.premiere', ['codemill.adobe'])
       };
 
       this.setPlayerPositionToMarker = function (time) {
-        if (adobeService.isHostAvailable()) {
+          if (adobeService.isHostAvailable()) {
             adobeService.callCS(setPlayerPositionToMarker(time))
         }
     };

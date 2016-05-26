@@ -1,3 +1,35 @@
+//Common
+function replaceEscapedCharacters(comment) {
+
+    comment = comment.replace(/<br\s*[\/]?>/gi, '\n');
+
+    comment = comment.replace(/&#39;/g, "'");
+    comment = comment.replace(/&#;39;/g, "'");
+    comment = comment.replace(/&%23;39;/g, "'");
+    comment = comment.replace(/&&%23;37;23;39;/g, "'");
+
+    comment = comment.replace(/&#47;/g, "/");
+    comment = comment.replace(/&#;47;/g, "/");
+    comment = comment.replace(/&%23;47;/g, "/");
+
+    comment = comment.replace(/&#92;/g, "\\");
+    comment = comment.replace(/&#;92;/g, "\\");
+    comment = comment.replace(/&%23;92;/g, "\\");
+
+    comment = comment.replace(/&#34;/g, "\"");
+    comment = comment.replace(/&#;34;/g, "\"");
+    comment = comment.replace(/&%23;34;/g, "\"");
+    comment = comment.replace(/&&%23;37;23;34;/g, "\"")
+
+    comment = comment.replace(/&#37;/g, "%");
+    comment = comment.replace(/&#;37;/g, "%");
+    comment = comment.replace(/&%23;37;/g, "%");
+
+    comment = comment.replace(/%20/g, " ");
+    comment = comment.replace(/%0A/g, " ");
+    return comment;
+}
+
 //AE
 function setCurrentTimeIndicator(time) {
     app.project.activeItem.time = time
@@ -22,6 +54,36 @@ function getActiveItem() {
     };
 
     return JSON.stringify(data);
+}
+
+function setNullLayerMarkers(data) {
+
+    var activeItem = app.project.activeItem
+
+    if (!activeItem) {
+        return
+    }
+
+    var nullLayer = app.project.activeItem.layers.byName("Wipster comments");
+
+    if (nullLayer != null) {
+        nullLayer.remove();
+    }
+
+    nullLayer = app.project.activeItem.layers.addNull();
+    nullLayer.name = "Wipster comments";
+    var json;
+
+    if (typeof JSON !== 'object') {
+        json = Function("return " + data + "")();
+    } else {
+        json = JSON.parse(data);
+    }
+    for (var i = 0; i < json.length; i++) {
+        var myMarker = new MarkerValue(replaceEscapedCharacters(json[i].comments));
+        myMarker.duration = 1;
+        nullLayer.property("Marker").setValueAtTime(json[i].start, myMarker);
+    }
 }
 
 //PPRO
@@ -243,34 +305,15 @@ function createSequenceMarkers(inMarkers) {
   }
 }
 
+
+
 function createSequenceMarker(marker) {
     var sequenceMarkers = app.project.activeSequence.markers;
     var newMarker = sequenceMarkers.createMarker(marker.start);
     newMarker.name = marker.name;
-    newMarker.comments = marker.comments.replace(/<br\s*[\/]?>/gi, '\n');
 
-    newMarker.comments = newMarker.comments.replace(/&#39;/g, "'");
-    newMarker.comments = newMarker.comments.replace(/&#;39;/g, "'");
-    newMarker.comments = newMarker.comments.replace(/&%23;39;/g, "'");
+    newMarker.comments = replaceEscapedCharacters(marker.comments);
 
-    newMarker.comments = newMarker.comments.replace(/&#47;/g, "/");
-    newMarker.comments = newMarker.comments.replace(/&#;47;/g, "/");
-    newMarker.comments = newMarker.comments.replace(/&%23;47;/g, "/");
-
-    newMarker.comments = newMarker.comments.replace(/&#92;/g, "\\");
-    newMarker.comments = newMarker.comments.replace(/&#;92;/g, "\\");
-    newMarker.comments = newMarker.comments.replace(/&%23;92;/g, "\\");
-
-    newMarker.comments = newMarker.comments.replace(/&#34;/g, "\"");
-    newMarker.comments = newMarker.comments.replace(/&#;34;/g, "\"");
-    newMarker.comments = newMarker.comments.replace(/&%23;34;/g, "\"");
-
-    newMarker.comments = newMarker.comments.replace(/&#37;/g, "%");
-    newMarker.comments = newMarker.comments.replace(/&#;37;/g, "%");
-    newMarker.comments = newMarker.comments.replace(/&%23;37;/g, "%");
-
-    newMarker.comments = newMarker.comments.replace(/%20/g, " ");
-    newMarker.comments = newMarker.comments.replace(/%0A/g, " ");
     newMarker.end = marker.end;
     
     if(typeof marker.completed !== "undefined" && marker.completed === true)
@@ -313,11 +356,11 @@ function setPlayerPosition(ticks) {
 function setPlayerPositionToMarker(time) {
 
     if (app.project.activeSequence != undefined) {
-       
         var markers = app.project.activeSequence.markers;
         for (var current_marker = markers.getFirstMarker() ;
             current_marker != undefined;
             current_marker = markers.getNextMarker(current_marker)) {
+
             if (current_marker.end.seconds == time)
             {
                 setPlayerPosition(current_marker.end.ticks)
