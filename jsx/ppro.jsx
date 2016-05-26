@@ -58,13 +58,11 @@ function getActiveItem() {
 
 function setNullLayerMarkers(data) {
 
-    var activeItem = app.project.activeItem
-
-    if (!activeItem) {
+    if (!app.project.activeItem || !app.project.activeItem.layers) {
         return
     }
 
-    var nullLayer = app.project.activeItem.layers.byName("Wipster comments");
+    var nullLayer = app.project.activeItem.layer("Wipster comments");
 
     if (nullLayer != null) {
         nullLayer.remove();
