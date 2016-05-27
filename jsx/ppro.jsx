@@ -78,9 +78,13 @@ function setNullLayerMarkers(data) {
         json = JSON.parse(data);
     }
     for (var i = 0; i < json.length; i++) {
-        var myMarker = new MarkerValue(replaceEscapedCharacters(json[i].comments));
+        var AllCommentsAtThisTime = "";
+        for (var c = 0; c < json[i].comments.length; c++) {
+            AllCommentsAtThisTime  += "(" + (c + 1) + ") " + json[i].comments[c]
+        }
+        var myMarker = new MarkerValue(replaceEscapedCharacters(AllCommentsAtThisTime));
         myMarker.duration = 1;
-        nullLayer.property("Marker").setValueAtTime(json[i].start, myMarker);
+        nullLayer.property("Marker").setValueAtTime(json[i].start[0], myMarker);
     }
 }
 
