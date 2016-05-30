@@ -65,11 +65,13 @@ function setNullLayerMarkers(data) {
     var nullLayer = app.project.activeItem.layer("Wipster comments");
 
     if (nullLayer != null) {
+        nullLayer.locked = false;
         nullLayer.remove();
     }
 
     nullLayer = app.project.activeItem.layers.addNull();
     nullLayer.name = "Wipster comments";
+   
     var json;
 
     if (typeof JSON !== 'object') {
@@ -86,6 +88,8 @@ function setNullLayerMarkers(data) {
         myMarker.duration = 1;
         nullLayer.property("Marker").setValueAtTime(json[i].start[0], myMarker);
     }
+
+    nullLayer.locked = true;
 }
 
 //PPRO
