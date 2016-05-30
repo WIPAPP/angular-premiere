@@ -49,7 +49,7 @@ function getActiveItem() {
         };
     };
 
-    if (typeof JSON !== 'object') {
+    if (typeof JSON !== 'object' && activeItem) {
         return '{"id":"' + activeItem.id + '","name": "' + activeItem.name + '"}'
     };
 
@@ -229,7 +229,7 @@ function getActiveSequence() {
       'name': activeSequence.name
     };
   }
-  if (typeof JSON !== 'object')
+  if (typeof JSON !== 'object' && activeSequence)
   {
       return '{"id":"' + activeSequence.guid + '","name": "' + activeSequence.name + '"}'
   }
