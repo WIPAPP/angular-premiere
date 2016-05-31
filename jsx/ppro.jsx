@@ -31,6 +31,40 @@ function replaceEscapedCharacters(comment) {
 }
 
 //AE
+
+function renderItem(outputPath) {
+
+    var activeSequence = app.project.activeItem;
+    if (activeSequence != undefined) {
+
+        var rqItem = app.project.renderQueue.items.add(activeSequence);
+
+        var fx = "avi"
+
+        var outPutFileName = calculateOutputFilenameForAE(outputPath, activeSequence, fx);
+        var file = new File(outPutFileName);//todo change this to prefix of video
+
+        rqItem.logType = LogType.ERRORS_AND_PER_FRAME_INFO;
+        rqItem.outputModule(1).file = file;
+        rqItem.render = true;
+
+        rqItem.onStatusChanged = function () {
+            $.writeln('onStatusChanged: ', rqItem);
+        };
+
+        $.writeln("start render");
+
+        app.project.renderQueue.render(); //Triggers render inside AE.
+
+        $.writeln("end render");
+
+        $.writeln(outPutFileName)
+        return outPutFileName;
+    }
+
+    return null;
+}
+
 function setCurrentTimeIndicator(time) {
     app.project.activeItem.time = time
 }
@@ -42,6 +76,7 @@ function getActiveItem() {
     };
     var activeItem = app.project.activeItem;
 
+    //$.writeln("type2: ", CompItem.prototype.isPrototypeOf(activeItem))
     if (activeItem) {
         data = {
             'id': activeItem.id,
@@ -238,6 +273,17 @@ function getActiveSequence() {
 
 function calculateOutputFilename(outputPath, activeSequence, extension) {
   return outputPath + getPathSeparatorByOS() + activeSequence.name + "." + extension;
+}
+
+//todo duplicate
+function calculateOutputFilenameForAE(outputPath, activeSequence, extension) {
+    return outputPath + getPathSeparatorByOSForAE() + activeSequence.name + "." + extension;
+}
+//todo duplicate
+function getPathSeparatorByOSForAE() {
+
+    return '\\';
+
 }
 
 function getPathSeparatorByOS() {
