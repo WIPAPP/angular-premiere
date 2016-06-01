@@ -39,27 +39,25 @@ function renderItem(outputPath) {
 
         var rqItem = app.project.renderQueue.items.add(activeSequence);
 
-        var fx = "avi"
-
-        var outPutFileName = calculateOutputFilenameForAE(outputPath, activeSequence, fx);
-        var file = new File(outPutFileName);//todo change this to prefix of video
+        var outPutFileName = calculateOutputFilenameForAE(outputPath, activeSequence, '');
+        var file = new File(outPutFileName);
 
         rqItem.logType = LogType.ERRORS_AND_PER_FRAME_INFO;
         rqItem.outputModule(1).file = file;
+        rqItem.outputModule(1).includeSourceXMP = true;
         rqItem.render = true;
-
-        rqItem.onStatusChanged = function () {
+        
+        /*rqItem.onStatusChanged = function () {
             $.writeln('onStatusChanged: ', rqItem);
-        };
+        };*/
 
-        $.writeln("start render");
+       // $.writeln("start render");
 
         app.project.renderQueue.render(); //Triggers render inside AE.
 
-        $.writeln("end render");
+       // $.writeln("end render");
 
-        $.writeln(outPutFileName)
-        return outPutFileName;
+        return rqItem.outputModule(1).file;
     }
 
     return null;
@@ -76,8 +74,13 @@ function getActiveItem() {
     };
     var activeItem = app.project.activeItem;
 
-    //$.writeln("type2: ", CompItem.prototype.isPrototypeOf(activeItem))
-    if (activeItem) {
+   
+    if (activeItem && activeItem.typeName === "Composition") {
+       // $.writeln("type2: ", activeItem.typeName);
+       
+       //$.writeln("app.preferences: ", JSON.stringify(app.preferences));
+      // $.writeln("app.project.renderQueue: ", JSON.stringify(app.project.renderQueue));
+      // $.writeln("app.settings: ", JSON.stringify(app.settings));
         data = {
             'id': activeItem.id,
             'name': activeItem.name

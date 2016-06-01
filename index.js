@@ -41,7 +41,7 @@ angular.module('codemill.premiere', ['codemill.adobe'])
       function setPlayerPositionToMarker(time) {
           return { method: 'setPlayerPositionToMarker', args: [time] };
       }
-
+      
       function handleRenderEvent(event) {
           var jobID = event.data.jobID;
         if (jobID in jobs) {
