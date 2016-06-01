@@ -36,7 +36,7 @@ function renderItem(outputPath) {
 
     var activeSequence = app.project.activeItem;
     if (activeSequence != undefined) {
-
+        app.project.save();
         var rqItem = app.project.renderQueue.items.add(activeSequence);
 
         var outPutFileName = calculateOutputFilenameForAE(outputPath, activeSequence, '');
@@ -44,7 +44,7 @@ function renderItem(outputPath) {
 
         rqItem.logType = LogType.ERRORS_AND_PER_FRAME_INFO;
         rqItem.outputModule(1).file = file;
-        rqItem.outputModule(1).includeSourceXMP = true;
+        //rqItem.outputModule(1).includeSourceXMP = true;
         rqItem.render = true;
         
         /*rqItem.onStatusChanged = function () {
@@ -285,7 +285,15 @@ function calculateOutputFilenameForAE(outputPath, activeSequence, extension) {
 //todo duplicate
 function getPathSeparatorByOSForAE() {
 
-    return '\\';
+    if (Folder === undefined || Folder === null || Folder.fs === undefined || Folder.fs === null) {
+        return '\\';
+    }
+
+    if (Folder.fs === 'Macintosh') {
+        return '/';
+    } else {
+        return '\\';
+    }
 
 }
 
