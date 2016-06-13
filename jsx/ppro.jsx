@@ -40,6 +40,7 @@ function renderItem(outputPath) {
         var rqItem = app.project.renderQueue.items.add(activeSequence);
 
         var outPutFileName = calculateOutputFilenameForAE(outputPath, activeSequence, '');
+       // $.writeln("outPutFileName: ", outPutFileName);
         var file = new File(outPutFileName);
 
         rqItem.logType = LogType.ERRORS_AND_PER_FRAME_INFO;
@@ -280,20 +281,20 @@ function calculateOutputFilename(outputPath, activeSequence, extension) {
 
 //todo duplicate
 function calculateOutputFilenameForAE(outputPath, activeSequence, extension) {
-    return outputPath + getPathSeparatorByOSForAE() + activeSequence.name + "." + extension;
+    return outputPath + getPathSeparatorByOSForAE() + activeSequence.name + "/";
 }
 //todo duplicate
 function getPathSeparatorByOSForAE() {
-
-    if (Folder === undefined || Folder === null || Folder.fs === undefined || Folder.fs === null) {
-        return '\\';
-    }
-
-    if (Folder.fs === 'Macintosh') {
+   // $.writeln("Folder: ", Folder);
+    //if (Folder === undefined || Folder === null || Folder.fs === undefined || Folder.fs === null) {
+    //    return '\\';
+    //}
+    //$.writeln("Folder: ", Folder.fs);
+    //if (Folder.fs === 'Macintosh') {
         return '/';
-    } else {
-        return '\\';
-    }
+    //} else {
+    //    return '\\';
+    //}
 
 }
 
