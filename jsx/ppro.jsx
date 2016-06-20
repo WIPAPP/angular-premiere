@@ -37,26 +37,17 @@ function renderItem(outputPath) {
     var activeSequence = app.project.activeItem;
     if (activeSequence != undefined) {
         app.project.save();
+
         var rqItem = app.project.renderQueue.items.add(activeSequence);
 
         var outPutFileName = calculateOutputFilenameForAE(outputPath, activeSequence, '');
-       // $.writeln("outPutFileName: ", outPutFileName);
+
         var file = new File(outPutFileName);
 
-        rqItem.logType = LogType.ERRORS_AND_PER_FRAME_INFO;
         rqItem.outputModule(1).file = file;
-        //rqItem.outputModule(1).includeSourceXMP = true;
         rqItem.render = true;
         
-        /*rqItem.onStatusChanged = function () {
-            $.writeln('onStatusChanged: ', rqItem);
-        };*/
-
-       // $.writeln("start render");
-
         app.project.renderQueue.render(); //Triggers render inside AE.
-
-       // $.writeln("end render");
 
         return rqItem.outputModule(1).file;
     }
@@ -77,11 +68,7 @@ function getActiveItem() {
 
    
     if (activeItem && activeItem.typeName === "Composition") {
-       // $.writeln("type2: ", activeItem.typeName);
-       
-       //$.writeln("app.preferences: ", JSON.stringify(app.preferences));
-      // $.writeln("app.project.renderQueue: ", JSON.stringify(app.project.renderQueue));
-      // $.writeln("app.settings: ", JSON.stringify(app.settings));
+
         data = {
             'id': activeItem.id,
             'name': activeItem.name
@@ -281,6 +268,7 @@ function calculateOutputFilename(outputPath, activeSequence, extension) {
 
 //todo duplicate
 function calculateOutputFilenameForAE(outputPath, activeSequence, extension) {
+    
     return outputPath + getPathSeparatorByOSForAE() + activeSequence.name + "/";
 }
 //todo duplicate
