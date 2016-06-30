@@ -30,13 +30,94 @@ function replaceEscapedCharacters(comment) {
     return comment;
 }
 
-//AE
+function addWipsterTemplates(presetPath) {
+   // var activeSequence = app.project.activeItem;
+    
+    var currentProjectFile = app.project.file;
+    app.project.save();
 
-function renderItem(outputPath) {
+    var my_file = new File(presetPath);
+    app.open(my_file);
+    if (my_file.exists){
+        app.open(my_file);
+
+        var renderQueue = app.project.renderQueue;
+
+        var activeSequence = app.project.item(1);
+        var rqItem = app.project.renderQueue.items.add(activeSequence);
+
+        if(renderQueue.numItems > 0) {
+            for (var i = 1; i <= renderQueue.numItems; ++i) {
+                var qItem = renderQueue.item(i);
+                for (var j = 1; j <= qItem.numOutputModules; ++j) {
+                    var om = qItem.outputModule(j);
+                    if (om.name === "Wipster template") {
+                        om.saveAsTemplate(om.name);
+                    }
+                }
+            }
+        }
+
+        app.project.close(CloseOptions.DO_NOT_SAVE_CHANGES);
+        app.open(currentProjectFile);
+    }
+}
+
+function removeAllQueuedRenderItems() {
+    var renderQueue = app.project.renderQueue;
+    if(renderQueue.numItems > 0) {
+        for (var i = 1; i <= renderQueue.numItems; ++i) {
+            var rqItem = renderQueue.item(i);
+
+            rqItem.remove();
+        }
+    }
+    app.project.save();
+}
+
+function hasWipsterTemplatesInstalled(rqItem) {
+    //todo remove the old one as they could have modified it and replace it.
+    var currentTemplates = rqItem.outputModule(1).templates;
+    var hasTemplate = false;
+    for (var i = 1; i < currentTemplates.length; i++) {
+        var template = currentTemplates[i];
+        if (template === "Wipster template") {
+            hasTemplate = true;
+        }
+    }
+    return hasTemplate;
+}
+
+function getOutputTemplates(presetPath) {
+
+    var activeSequence = app.project.activeItem;
+
+    removeAllQueuedRenderItems();
+
+    var rqItem = app.project.renderQueue.items.add(activeSequence);
+    rqItem.render = false;
+
+    if (!hasWipsterTemplatesInstalled(rqItem)) {
+        addWipsterTemplates(presetPath);
+    }
+    
+    rqItem = app.project.renderQueue.item(1);
+    var templates = rqItem.outputModule(1).templates;
+
+    rqItem.remove()
+    app.project.save();
+    return JSON.stringify(templates);
+}
+
+//AE
+function renderItem(outputPath, template) {
 
     var activeSequence = app.project.activeItem;
     if (activeSequence != undefined) {
+
         app.project.save();
+
+        var total = activeSequence.workAreaDuration * activeSequence.frameRate;
 
         var rqItem = app.project.renderQueue.items.add(activeSequence);
 
@@ -45,6 +126,8 @@ function renderItem(outputPath) {
         var file = new File(outPutFileName);
 
         rqItem.outputModule(1).file = file;
+
+        rqItem.outputModule(1).applyTemplate(template);
         rqItem.render = true;
         
         app.project.renderQueue.render(); //Triggers render inside AE.
@@ -205,6 +288,7 @@ function renderSequence(presetPath, outputPath, useInOutPoints) {
     }
 
     if (outputPath != null && projPath.exists) {
+      //  $.writeln("presetPath: ",presetPath);
       var outputPresetPath = getPresetPath(presetPath);
       var outPreset = new File(outputPresetPath);
       if (outPreset.exists == true) {
