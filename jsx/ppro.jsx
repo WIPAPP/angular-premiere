@@ -49,8 +49,15 @@ function addWipsterTemplates(presetPath) {
         if(renderQueue.numItems > 0) {
             for (var i = 1; i <= renderQueue.numItems; ++i) {
                 var qItem = renderQueue.item(i);
+                //$.writeln("temp length: ", qItem.templates.length);
+                //for (var k = 0; k <= qItem.templates.length; ++k) {
+                //    var template = qItem.templates[k];
+                //    $.writeln("template: ", template);
+                //}
+                //output modules
                 for (var j = 1; j <= qItem.numOutputModules; ++j) {
                     var om = qItem.outputModule(j);
+                    $.writeln("om: ", om);
                     if (om.name === "Wipster template") {
                         om.saveAsTemplate(om.name);
                     }
@@ -109,17 +116,26 @@ function getOutputTemplates(presetPath) {
     return JSON.stringify(templates);
 }
 
+function getOutputTemplate(renderQuality) {
+
+    if (typeof renderQuality === "undefined" || renderQuality === null || renderQuality !== "nigh") {
+        
+    }
+}
+
 //AE
-function renderItem(outputPath, template) {
+function renderItem(outputPath, outputTemplate, renderTemplate) {
 
     var activeSequence = app.project.activeItem;
     if (activeSequence != undefined) {
 
         app.project.save();
 
-        var total = activeSequence.workAreaDuration * activeSequence.frameRate;
+        //var total = activeSequence.workAreaDuration * activeSequence.frameRate;
 
         var rqItem = app.project.renderQueue.items.add(activeSequence);
+
+        rqItem.applyTemplate(renderTemplate);  //Best Settings Draft Settings
 
         var outPutFileName = calculateOutputFilenameForAE(outputPath, activeSequence, '');
 
@@ -127,7 +143,7 @@ function renderItem(outputPath, template) {
 
         rqItem.outputModule(1).file = file;
 
-        rqItem.outputModule(1).applyTemplate(template);
+        rqItem.outputModule(1).applyTemplate(outputTemplate);
         rqItem.render = true;
         
         app.project.renderQueue.render(); //Triggers render inside AE.
@@ -162,7 +178,10 @@ function getActiveItem() {
         return '{"id":"' + activeItem.id + '","name": "' + activeItem.name + '"}'
     };
 
-    return JSON.stringify(data);
+    if (typeof JSON === "object" && activeItem) {
+        return JSON.stringify(data);
+    }
+    return '{"id":"0","name": ""}'
 }
 
 function setNullLayerMarkers(data) {
@@ -288,7 +307,6 @@ function renderSequence(presetPath, outputPath, useInOutPoints) {
     }
 
     if (outputPath != null && projPath.exists) {
-      //  $.writeln("presetPath: ",presetPath);
       var outputPresetPath = getPresetPath(presetPath);
       var outPreset = new File(outputPresetPath);
       if (outPreset.exists == true) {
