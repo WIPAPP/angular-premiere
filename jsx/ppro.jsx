@@ -1,4 +1,8 @@
 //Common
+var HIGH_TEMPLATE = "High";
+var MEDIUM_TEMPLATE = "Medium";
+var LOW_TEMPLATE = "Low";
+
 function replaceEscapedCharacters(comment) {
 
     comment = comment.replace(/<br\s*[\/]?>/gi, '\n');
@@ -28,47 +32,75 @@ function replaceEscapedCharacters(comment) {
     comment = comment.replace(/%20/g, " ");
     comment = comment.replace(/%0A/g, " ");
     return comment;
-}
+};
 
-function addWipsterTemplates(presetPath) {
+function hasTemplateAlreadyInstalled(name, templates) {
+    var hasTemplateInstalled = false;
+    for (var i = 1; i < templates.length; i++) {
+        if (templates[i] === name) {
+            hasTemplateInstalled = true;
+        };
+    }
+    return hasTemplateInstalled;
+};
+
+function hasAllWipsterTemplatesInstalled(templates) {
+    var hasHighTemplateInstalled = hasTemplateAlreadyInstalled(HIGH_TEMPLATE, templates);
+    var hasMedTemplateInstalled = hasTemplateAlreadyInstalled(MEDIUM_TEMPLATE, templates);
+    var hasLowTemplateInstalled = hasTemplateAlreadyInstalled(LOW_TEMPLATE, templates);
+
+    return hasHighTemplateInstalled && hasMedTemplateInstalled && hasLowTemplateInstalled;
+};
+
+function addWipsterTemplates(presetPath, currentTemplates) {
    // var activeSequence = app.project.activeItem;
     
     var currentProjectFile = app.project.file;
     app.project.save();
 
     var my_file = new File(presetPath);
+   // $.writeln("myfile: ", my_file);
     app.open(my_file);
     if (my_file.exists){
         app.open(my_file);
-
+       // $.writeln("is open");
         var renderQueue = app.project.renderQueue;
 
         var activeSequence = app.project.item(1);
         var rqItem = app.project.renderQueue.items.add(activeSequence);
 
         if(renderQueue.numItems > 0) {
+            /*
+            var qItem = renderQueue.item(1);
+            var templateCount = qItem.templates.length;
+            $.writeln("temp length: ", templateCount);
+
+            for (var k = 0; k <= templateCount; ++k) {
+                var template = qItem.templates[k];
+                $.writeln("template: ", template);
+                $.writeln("k: ", k);
+                qItem.saveAsTemplate(template);
+            }*/
             for (var i = 1; i <= renderQueue.numItems; ++i) {
                 var qItem = renderQueue.item(i);
-                //$.writeln("temp length: ", qItem.templates.length);
-                //for (var k = 0; k <= qItem.templates.length; ++k) {
-                //    var template = qItem.templates[k];
-                //    $.writeln("template: ", template);
-                //}
                 //output modules
                 for (var j = 1; j <= qItem.numOutputModules; ++j) {
                     var om = qItem.outputModule(j);
-                    $.writeln("om: ", om);
-                    if (om.name === "Wipster template") {
+                    
+                    if ((om.name === HIGH_TEMPLATE && !hasTemplateAlreadyInstalled(HIGH_TEMPLATE, currentTemplates)) ||
+                            (om.name === MEDIUM_TEMPLATE && !hasTemplateAlreadyInstalled(MEDIUM_TEMPLATE, currentTemplates)) ||
+                                (om.name === LOW_TEMPLATE && !hasTemplateAlreadyInstalled(LOW_TEMPLATE, currentTemplates))) { //todo make this a reuseable function
+
                         om.saveAsTemplate(om.name);
-                    }
+                    };
                 }
             }
-        }
+        };
 
         app.project.close(CloseOptions.DO_NOT_SAVE_CHANGES);
         app.open(currentProjectFile);
-    }
-}
+    };
+};
 
 function removeAllQueuedRenderItems() {
     var renderQueue = app.project.renderQueue;
@@ -78,22 +110,38 @@ function removeAllQueuedRenderItems() {
 
             rqItem.remove();
         }
-    }
+    };
     app.project.save();
-}
+};
 
-function hasWipsterTemplatesInstalled(rqItem) {
-    //todo remove the old one as they could have modified it and replace it.
-    var currentTemplates = rqItem.outputModule(1).templates;
-    var hasTemplate = false;
-    for (var i = 1; i < currentTemplates.length; i++) {
-        var template = currentTemplates[i];
-        if (template === "Wipster template") {
-            hasTemplate = true;
-        }
-    }
-    return hasTemplate;
-}
+//function removeInstalledWipsterTemplates(rqItem) {
+//    var currentTemplates = rqItem.outputModule(1).templates;
+
+//    for (var i = 1; i < currentTemplates.length; i++) {
+//        var template = currentTemplates[i];
+//        if (template === "High" || template === "Medium" || template === "Low") {
+//           // rqItem.outputModule(1).templates[i].remove();
+//            rqItem.outputModule(1).remove();
+//        }
+//    }
+//};
+
+function getRenderTemplates() {
+
+    var activeSequence = app.project.activeItem;
+
+    removeAllQueuedRenderItems();
+
+    var rqItem = app.project.renderQueue.items.add(activeSequence);
+    rqItem.render = false;
+
+    rqItem = app.project.renderQueue.item(1);
+    var templates = rqItem.templates;
+
+    rqItem.remove();
+    app.project.save();
+    return JSON.stringify(templates);
+};
 
 function getOutputTemplates(presetPath) {
 
@@ -103,25 +151,19 @@ function getOutputTemplates(presetPath) {
 
     var rqItem = app.project.renderQueue.items.add(activeSequence);
     rqItem.render = false;
+    var currentTemplates = rqItem.outputModule(1).templates;
 
-    if (!hasWipsterTemplatesInstalled(rqItem)) {
-        addWipsterTemplates(presetPath);
-    }
+    if (typeof presetPath !== "undefined" && presetPath !== null && !hasAllWipsterTemplatesInstalled(currentTemplates)) {
+        addWipsterTemplates(presetPath, currentTemplates);
+    };
     
     rqItem = app.project.renderQueue.item(1);
     var templates = rqItem.outputModule(1).templates;
 
-    rqItem.remove()
+    rqItem.remove();
     app.project.save();
     return JSON.stringify(templates);
-}
-
-function getOutputTemplate(renderQuality) {
-
-    if (typeof renderQuality === "undefined" || renderQuality === null || renderQuality !== "nigh") {
-        
-    }
-}
+};
 
 //AE
 function renderItem(outputPath, outputTemplate, renderTemplate) {
