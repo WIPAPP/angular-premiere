@@ -34,6 +34,16 @@ function replaceEscapedCharacters(comment) {
     return comment;
 };
 
+function getWorkAreaStart() {
+    var activeSequence = app.project.activeItem;
+    if (typeof activeSequence === "undefined" || activeSequence === null
+                || typeof activeSequence.workAreaStart === "undefined" || activeSequence.workAreaStart === null) {
+        return 0;
+    };
+    
+    return activeSequence.workAreaStart;
+};
+
 function hasTemplateAlreadyInstalled(name, templates) {
     var hasTemplateInstalled = false;
     for (var i = 1; i < templates.length; i++) {
@@ -173,8 +183,6 @@ function renderItem(outputPath, outputTemplate, renderTemplate) {
 
         app.project.save();
 
-        //var total = activeSequence.workAreaDuration * activeSequence.frameRate;
-
         var rqItem = app.project.renderQueue.items.add(activeSequence);
 
         rqItem.applyTemplate(renderTemplate);  //Best Settings Draft Settings
@@ -187,7 +195,8 @@ function renderItem(outputPath, outputTemplate, renderTemplate) {
 
         rqItem.outputModule(1).applyTemplate(outputTemplate);
         rqItem.render = true;
-        
+
+        //$.writeln("activeSequence.workAreaStart: ", activeSequence.workAreaStart);
         app.project.renderQueue.render(); //Triggers render inside AE.
 
         return rqItem.outputModule(1).file;
