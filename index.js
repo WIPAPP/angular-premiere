@@ -125,43 +125,13 @@ angular.module('codemill.premiere', ['codemill.adobe'])
       this.clearSequenceMarkers = function () {
         return runWithActiveSequenceCheck(clearSequenceMarkers());
       };
+
+      this.getInMarkerPoint = function() {
+          return adobeService.callCS(getInMarkerPoint());
+      };
        
-      this.isInMarkerActive = function() {
-          adobeService.callCS(getInMarkerPoint()).then(function(point) {
-              try {
-                  if (typeof point !== "undefined" && point !== null && point > 0) {
-                      return true
-                  }
-              } catch (e) {
-                  $log.Error(e);
-
-              }
-          }).catch(function(error) {
-              $log.Error(error);
-          });
-          return false;
-      }
-
-      var resetMarkersEndIfInPointActive = function (markers) {
-          adobeService.callCS(getInMarkerPoint()).then(function(point) {
-              try {
-                  if (typeof point !== "undefined" && point !== null && point > 0 && markers.length > 0) {
-                      for (var i = 0; i < markers.length; i++) {
-                          markers[i].start = (markers[i].start) + parseFloat(point);
-                          markers[i].end = (markers[i].end + parseFloat(point));
-                      }
-                  }
-              } catch (e) {
-                  $log.Error(e);
-              } 
-          }).catch(function(error) {
-              $log.Error(error);
-          })
-        };
-
       this.createSequenceMarkers = function (markers) {
-          $log.debug('markers: ', markers);
-          resetMarkersEndIfInPointActive(markers);
+        $log.debug('markers: ', markers);
         return runWithActiveSequenceCheck(createSequenceMarkers(markers));
       };
 

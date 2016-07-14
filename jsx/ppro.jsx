@@ -549,7 +549,12 @@ function getMarkerColour(index) {
 }
 
 function getInMarkerPoint() {
-    return app.project.activeSequence.getInPoint();
+    var activeSequence = app.project.activeSequence;
+    if (typeof activeSequence !== "undefined" && activeSequence !== null) {
+        return activeSequence.getInPoint();	
+    } else {
+        return "0";
+    };
 }
 
 function setPlayerPosition(ticks) {
