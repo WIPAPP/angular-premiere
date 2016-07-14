@@ -127,7 +127,11 @@ angular.module('codemill.premiere', ['codemill.adobe'])
       };
 
       this.getInMarkerPoint = function() {
+        if (adobeService.isHostAvailable()) {
           return adobeService.callCS(getInMarkerPoint());
+        } else {
+          return $q.when();
+        }
       };
        
       this.createSequenceMarkers = function (markers) {
