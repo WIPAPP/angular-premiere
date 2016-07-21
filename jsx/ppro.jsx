@@ -40,7 +40,7 @@ function getWorkAreaStart() {
                 || typeof activeSequence.workAreaStart === "undefined" || activeSequence.workAreaStart === null) {
         return 0;
     };
-    
+
     return activeSequence.workAreaStart;
 };
 
@@ -64,7 +64,7 @@ function hasAllWipsterTemplatesInstalled(templates) {
 
 function addWipsterTemplates(presetPath, currentTemplates) {
    // var activeSequence = app.project.activeItem;
-    
+
     var currentProjectFile = app.project.file;
     app.project.save();
 
@@ -96,7 +96,7 @@ function addWipsterTemplates(presetPath, currentTemplates) {
                 //output modules
                 for (var j = 1; j <= qItem.numOutputModules; ++j) {
                     var om = qItem.outputModule(j);
-                    
+
                     if ((om.name === HIGH_TEMPLATE && !hasTemplateAlreadyInstalled(HIGH_TEMPLATE, currentTemplates)) ||
                             (om.name === MEDIUM_TEMPLATE && !hasTemplateAlreadyInstalled(MEDIUM_TEMPLATE, currentTemplates)) ||
                                 (om.name === LOW_TEMPLATE && !hasTemplateAlreadyInstalled(LOW_TEMPLATE, currentTemplates))) { //todo make this a reuseable function
@@ -166,7 +166,7 @@ function getOutputTemplates(presetPath) {
     if (typeof presetPath !== "undefined" && presetPath !== null && !hasAllWipsterTemplatesInstalled(currentTemplates)) {
         addWipsterTemplates(presetPath, currentTemplates);
     };
-    
+
     rqItem = app.project.renderQueue.item(1);
     var templates = rqItem.outputModule(1).templates;
 
@@ -216,7 +216,7 @@ function getActiveItem() {
     };
     var activeItem = app.project.activeItem;
 
-   
+
     if (activeItem && activeItem.typeName === "Composition") {
 
         data = {
@@ -250,7 +250,7 @@ function setNullLayerMarkers(data) {
 
     nullLayer = app.project.activeItem.layers.addNull();
     nullLayer.name = "Wipster comments";
-   
+
     var json;
 
     if (typeof JSON !== 'object') {
@@ -350,8 +350,8 @@ function renderSequence(presetPath, outputPath, useInOutPoints) {
 
     var projPath = new File(app.project.path);
 
-    var seqInPoint = app.project.activeSequence.getInPoint();	
-    var seqOutPoint = app.project.activeSequence.getOutPoint();	
+    var seqInPoint = app.project.activeSequence.getInPoint();
+    var seqOutPoint = app.project.activeSequence.getOutPoint();
 
     if (outputPath == undefined) {
       outputPath = Folder.selectDialog("Choose the output directory").fsName;
@@ -421,7 +421,7 @@ function calculateOutputFilename(outputPath, activeSequence, extension) {
 
 //todo duplicate
 function calculateOutputFilenameForAE(outputPath, activeSequence, extension) {
-    
+
     return outputPath + getPathSeparatorByOSForAE() + activeSequence.name + "/";
 }
 //todo duplicate
@@ -520,7 +520,7 @@ function createSequenceMarker(marker) {
     newMarker.comments = replaceEscapedCharacters(marker.comments);
 
     newMarker.end = marker.end;
-    
+
     if(typeof marker.completed !== "undefined" && marker.completed === true)
     {
         newMarker.type = "Segmentation";
@@ -551,7 +551,7 @@ function getMarkerColour(index) {
 function getInMarkerPoint() {
     var activeSequence = app.project.activeSequence;
     if (typeof activeSequence !== "undefined" && activeSequence !== null) {
-        return activeSequence.getInPoint();	
+        return activeSequence.getInPoint();
     } else {
         return "0";
     };
@@ -571,7 +571,7 @@ function setPlayerPositionToMarker(time) {
             current_marker != undefined;
             current_marker = markers.getNextMarker(current_marker)) {
 
-            if (current_marker.end.seconds == time)
+            if (current_marker.end.seconds.toFixed(2) === parseFloat(time).toFixed(2))
             {
                 setPlayerPosition(current_marker.end.ticks)
             }
