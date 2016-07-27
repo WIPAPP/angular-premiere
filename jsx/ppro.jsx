@@ -510,12 +510,10 @@ function createSequenceMarkers(inMarkers) {
   }
 }
 
-
-
 function createSequenceMarker(marker) {
     var sequenceMarkers = app.project.activeSequence.markers;
     var newMarker = sequenceMarkers.createMarker(marker.start);
-    newMarker.name = marker.name;
+    newMarker.name = replaceEscapedCharacters(marker.name);
 
     newMarker.comments = replaceEscapedCharacters(marker.comments);
 
