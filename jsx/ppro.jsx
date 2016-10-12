@@ -176,7 +176,7 @@ function getOutputTemplates(presetPath) {
 };
 
 //AE
-function renderItem(outputPath, outputTemplate, renderTemplate) {
+function renderItem(outputPath, outputTemplate, renderTemplate, sequenceName) {
 
     var activeSequence = app.project.activeItem;
     if (activeSequence != undefined) {
@@ -187,7 +187,7 @@ function renderItem(outputPath, outputTemplate, renderTemplate) {
 
         rqItem.applyTemplate(renderTemplate);  //Best Settings Draft Settings
 
-        var outPutFileName = calculateOutputFilenameForAE(outputPath, activeSequence, '');
+        var outPutFileName = calculateOutputFilenameForAE(outputPath, sequenceName, '');
 
         var file = new File(outPutFileName);
 
@@ -420,9 +420,9 @@ function calculateOutputFilename(outputPath, activeSequence, extension) {
 }
 
 //todo duplicate
-function calculateOutputFilenameForAE(outputPath, activeSequence, extension) {
+function calculateOutputFilenameForAE(outputPath, sequenceName, extension) {
 
-    return outputPath + getPathSeparatorByOSForAE() + activeSequence.name + "/";
+    return outputPath + getPathSeparatorByOSForAE() + sequenceName + "/";
 }
 //todo duplicate
 function getPathSeparatorByOSForAE() {
