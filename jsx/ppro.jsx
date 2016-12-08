@@ -497,16 +497,21 @@ function createSequenceMarkers(inMarkers) {
 
   if (typeof app.project.activeSequence != "undefined" && typeof inMarkers != "undefined") {
       var json;
-      if (typeof JSON !== 'object')
-      {
-          json = Function("return " + inMarkers + "")();
-      } else {
-          json = JSON.parse(inMarkers);
-      }
+      try {
+          if (typeof JSON !== 'object')
+          {
+              json = Function("return " + inMarkers + "")();
+          } else {
+              json = JSON.parse(inMarkers);
+          }
 
-      for (var i = 0; i < json.length; i++) {
-          createSequenceMarker(json[i])
-    }
+      } catch(error) {
+      }
+      if(json !== undefined && json !== ''){
+          for (var i = 0; i < json.length; i++) {
+              createSequenceMarker(json[i])
+          }
+      }
   }
 }
 
